@@ -22,9 +22,11 @@
     "joi": "^17.1.1",
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1",
+    "node-fetch": "^2.6.0",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "redis": "^3.0.2"
   }
 }

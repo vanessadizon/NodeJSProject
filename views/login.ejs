@@ -77,18 +77,16 @@ form {border: 3px solid #f1f1f1;}
 <body>
 
 <div class="registerForm">
+    <%- include('./message')-%>
     <form action="/login" method="POST">
       <div class="container">
           <h1>Login</h1>
           <p>Please log in using the registered account.</p>
           <hr>
-          <% if (messages.error) { %>
-            <%- messages.error %>
-          <% } %>
           <label for="email"><b>Email</b></label>
           <input type="text" placeholder="Enter Email" name="email" id="email" required>
 
-          <label for="psw"><b>Password</b></label>
+          <label for="password"><b>Password</b></label>
           <input type="password" placeholder="Enter Password" name="psw" id="psw" required>
 
           <button type="submit" class="loginbtn">Login</button>

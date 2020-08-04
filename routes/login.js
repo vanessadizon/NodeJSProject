@@ -6,10 +6,12 @@ let loginRouter = express.Router();
 const passport = require('passport');
 const session = require('express-session');
 const flash = require('express-flash');
-const initializePassport = require('../passport-config');
+const initialize = require('../passport-config');
 const dbConn = require("../db/dbService");
+const messages = require("../common/messages");
 
-const getUserByEmail = (email) => { 
+const getUserByEmail = (email) => {
+    console.log('email ' + email);
     return new Promise((resolve, reject) => {
         dbConn.query('SELECT * FROM users where email = ?', email, (err, res) => {
             if(err) { return reject(err); }
@@ -29,7 +31,7 @@ const getUserById = (id) => {
     });
 }
 
-initializePassport(
+initialize(
     passport, 
     email => getUserByEmail(email),
     id => getUserById(id));
@@ -44,13 +46,13 @@ loginRouter.use(passport.initialize());
 loginRouter.use(passport.session());
 loginRouter.use(flash());
 
-loginRouter.get('/', (req, res ) => {
+loginRouter.get('/', messages, (req, res ) => {
     return res.render('login.ejs');
 });
 
-loginRouter.post('/', passport.authenticate('local', {
-    successRedirect: 'home',
-    failureRedirect: '/',
+loginRouter.post('/', messages, passport.authenticate('local', {
+    successRedirect: '/home',
+    failureRedirect: '/login',
     failureFlash: true
 }));
 

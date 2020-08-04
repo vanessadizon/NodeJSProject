@@ -2,13 +2,9 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const dbConn = require("../db/dbService");
+const messages = require("../common/messages");
 
 let registerRouter = express.Router();
-
-function messages(req,res,next){
-    res.locals.message = "";
-    next();
-}
 
 registerRouter.get('/', messages, (req, res ) => {
     res.render('register.ejs');
@@ -20,16 +16,12 @@ registerRouter.post('/', async (req, res ) => {
         const password = await bcrypt.hash(req.body.password, 10);
         const user = { email: email, 
                         password: password };
-        checkUserIfAlreadyExist(user)
-            .then((is_user_exist) => { 
-                console.log(is_user_exist);
-                if (is_user_exist === 1) {
-                    console.log("is_user_exist");
-                    res.locals.message = 'Email already exists.';
-                    res.redirect('register.ejs');
-                }
-            })
-            .catch(err => console.log(err));
+        const isUserExist = await checkUserIfAlreadyExist(user)
+          
+        if (isUserExist === 1) {
+            res.locals.message = 'Email already exists.';
+            return res.render('register.ejs');
+        }   
 
         registerUser(user)
             .then(res.redirect('/login'))
