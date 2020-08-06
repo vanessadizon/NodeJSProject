@@ -2,21 +2,27 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const dbConn = require("../db/dbService");
-const messages = require("../common/messages");
 
 let registerRouter = express.Router();
 
-registerRouter.get('/', messages, (req, res ) => {
+function checkNotAuthenticated(req, res, next) {
+    if(req.isAuthenticated()) {
+        return res.redirect('/');
+    }
+
+    next();
+}
+
+registerRouter.get('/', checkNotAuthenticated, (req, res ) => {
     res.render('register.ejs');
 });
 
-registerRouter.post('/', async (req, res ) => {
+registerRouter.post('/', async (req, res, next ) => {
     try {
         const email = req.body.email;
         const password = await bcrypt.hash(req.body.password, 10);
-        const user = { email: email, 
-                        password: password };
-        const isUserExist = await checkUserIfAlreadyExist(user)
+        const user = { email: email, password: password };
+        const isUserExist = await checkUserIfAlreadyExist(user);
           
         if (isUserExist === 1) {
             res.locals.message = 'Email already exists.';

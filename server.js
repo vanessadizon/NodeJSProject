@@ -1,7 +1,7 @@
 const express = require('express');
 
 const server = express();
-const users = require("./routes/users");
+const index = require("./routes/index");
 const login = require("./routes/login");
 const register = require("./routes/register");
 const path = require('path');
@@ -11,7 +11,7 @@ dotenv.config();
 
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: false }));
-server.use("/users", users);
+server.use("/", index);
 server.use("/login", login);
 server.use("/register", register);
 server.use('/static', express.static(path.join(__dirname, 'public')))

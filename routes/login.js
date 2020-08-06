@@ -8,25 +8,21 @@ const session = require('express-session');
 const flash = require('express-flash');
 const initialize = require('../passport-config');
 const dbConn = require("../db/dbService");
-const messages = require("../common/messages");
 
 const getUserByEmail = (email) => {
-    console.log('email ' + email);
     return new Promise((resolve, reject) => {
         dbConn.query('SELECT * FROM users where email = ?', email, (err, res) => {
             if(err) { return reject(err); }
-            console.log('res email ' + res);
-            return resolve(res);
+            return resolve(res[0]);
         });
     });
 }
 
 const getUserById = (id) => { 
     return new Promise((resolve, reject) => {
-        dbConn.query('SELECT * FROM users where id = ?', id, (err, res) => {
+        dbConn.query('SELECT * FROM users where idusers = ?', id, (err, res) => {
             if(err) { return reject(err); }
-            console.log('res id ' + res);
-            return resolve(res);
+            return resolve(JSON.stringify(res));
         });
     });
 }
@@ -42,16 +38,16 @@ loginRouter.use(session({
     saveUninitialized: false
 }));
 
+loginRouter.use(flash());
 loginRouter.use(passport.initialize());
 loginRouter.use(passport.session());
-loginRouter.use(flash());
 
-loginRouter.get('/', messages, (req, res ) => {
+loginRouter.get('/', (req, res ) => {
     return res.render('login.ejs');
 });
 
-loginRouter.post('/', messages, passport.authenticate('local', {
-    successRedirect: '/home',
+loginRouter.post('/', passport.authenticate('local', {
+    successRedirect: '/',
     failureRedirect: '/login',
     failureFlash: true
 }));

@@ -72,11 +72,23 @@ a {
 
 form {border: 3px solid #f1f1f1;}
 
+.alert {
+  padding: .75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+}
+
+.alert-warning {
+  background-color: #fcf8e3;
+  border-color: #faf2cc;
+  color: #8a6d3b;
+}
 </style>
 </head>
 <body>
 
-<div class="registerForm">
+<div class="loginForm">
     <%- include('./message')-%>
     <form action="/login" method="POST">
       <div class="container">
@@ -87,7 +99,7 @@ form {border: 3px solid #f1f1f1;}
           <input type="text" placeholder="Enter Email" name="email" id="email" required>
 
           <label for="password"><b>Password</b></label>
-          <input type="password" placeholder="Enter Password" name="psw" id="psw" required>
+          <input type="password" placeholder="Enter Password" name="password" id="psw" required>
 
           <button type="submit" class="loginbtn">Login</button>
       </div>
