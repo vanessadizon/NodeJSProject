@@ -1,52 +1,62 @@
 "use strict"
-const express = require("express");
-const bcrypt = require("bcrypt");
+const passport = require('passport');
 const dbConn = require("../db/dbService");
-
+const initialize = require('../passport-config');
+const flash = require('express-flash');
+const express = require("express");
+const session = require('express-session');
 let registerRouter = express.Router();
+registerRouter.use(passport.initialize());
+registerRouter.use(session({
+    secret : process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
 
-function checkNotAuthenticated(req, res, next) {
-    if(req.isAuthenticated()) {
-        return res.redirect('/');
-    }
+registerRouter.use(passport.session());
+registerRouter.use(flash());
 
-    next();
-}
-
-registerRouter.get('/', checkNotAuthenticated, (req, res ) => {
+registerRouter.get('/', (req, res ) => {
     res.render('register.ejs');
 });
 
-registerRouter.post('/', async (req, res, next ) => {
-    try {
-        const email = req.body.email;
-        const password = await bcrypt.hash(req.body.password, 10);
-        const user = { email: email, password: password };
-        const isUserExist = await checkUserIfAlreadyExist(user);
-          
-        if (isUserExist === 1) {
-            res.locals.message = 'Email already exists.';
-            return res.render('register.ejs');
-        }   
-
-        registerUser(user)
-            .then(res.redirect('/login'))
-            .catch(err => console.log(err));
-        
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500);
-    }
-});
-
-const checkUserIfAlreadyExist = (user) => {
+const getUserByEmail = (email) => {
     return new Promise((resolve, reject) => {
-        dbConn.query('SELECT EXISTS(SELECT * FROM users where email = ?) AS is_user_exist', user.email, (err, res) => {
+        dbConn.query('SELECT * FROM users where email = ?', email, (err, res) => {
             if(err) { return reject(err); }
-            return resolve(res[0].is_user_exist);
+            return resolve(res[0]);
         });
     });
 }
+
+const getUserById = (id) => { 
+    return new Promise((resolve, reject) => {
+        dbConn.query('SELECT * FROM users where idusers = ?', id, (err, res) => {
+            if(err) { return reject(err); }
+            return resolve(res[0]);
+        });
+    });
+}
+
+initialize(
+    passport, 
+    email => getUserByEmail(email),
+    id => getUserById(id),
+    registerUser);
+
+    
+function passwordChecker (req, res, next) {
+    if(req.body.password !== req.body.confirmPassword) {
+        req.flash("error", "Passwords mismatched.");
+        return res.redirect('register');
+    }
+    next();
+}
+registerRouter.post('/', passwordChecker, passport.authenticate('register', {
+    successRedirect: '/login',
+    failureRedirect: '/register',
+    failureFlash: true
+}));
 
 function registerUser (user) {
     return new Promise((resolve, reject) => {

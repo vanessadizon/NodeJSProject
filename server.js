@@ -14,7 +14,7 @@ server.use(bodyParser.urlencoded({ extended: false }));
 server.use("/", index);
 server.use("/login", login);
 server.use("/register", register);
-server.use('/static', express.static(path.join(__dirname, 'public')))
+server.use('/public', express.static(path.join(__dirname, 'public')));
 
 server.set('views', path.join(__dirname, 'views'));
 server.set('view-engine', 'ejs');
